@@ -1,0 +1,16 @@
+week1: 1982
+week2: 3748
+week3: 2126
+week4: 2810
+week5: 2553
+week6: 2511
+week7: 2301
+week8: 2386
+week9: 3474
+week10: 2721
+week11: 3276
+week12: 4697
+week13: 2970
+week14: 2621
+week15: 2671
+week16: 3680

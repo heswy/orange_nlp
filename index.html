@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据大屏可视化</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .chart-container {
+            width: 48%;
+            height: 400px;
+            display: inline-block;
+            margin: 1%;
+            box-sizing: border-box;
+        }
+        .chart-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; font-size: 2em; margin: 20px 0;">用数据打开我的实习周报</h1>
+    <div class="chart-wrapper">
+        <div class="chart-container" id="chart1"></div>
+        <div class="chart-container" id="chart2"></div>
+        <div class="chart-container" id="chart3"></div>
+        <div class="chart-container" id="chart4"></div>
+    </div>
+    <script>
+        // 异步加载数据
+        fetch('processed_data.json')
+           .then(response => response.json())
+           .then(data => {
+                // 词频统计柱状图
+                const chart1 = echarts.init(document.getElementById('chart1'));
+                const wordFrequencyData = Object.entries(data.word_frequency).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                chart1.setOption({
+                    tooltip: { trigger: 'axis', formatter: function (params) { return params[0].name + '<br/>' + params[0].seriesName + ': ' + params[0].value + '次' } }, 
+                    title: { text: '我最常在周报中说什么' }, 
+                    xAxis: { data: wordFrequencyData.map(item => item[0]) },
+                    yAxis: { min: function(value) { return Math.floor(value.min * 0.9); }, max: function(value) { return Math.ceil(value.max * 1.1); } },
+                    series: [{ type: 'bar', data: wordFrequencyData.map(item => item[1]) }]
+                });
+
+                // 情感分析折线图
+                const chart2 = echarts.init(document.getElementById('chart2'));
+                const sentimentData = Object.entries(data.sentiment);
+                chart2.setOption({
+                    tooltip: { trigger: 'axis', formatter: function (params) { return params[0].name + '<br/>' + params[0].seriesName + ': ' + params[0].value + '分' } }, 
+                    title: { text: '哪周最开心？' }, 
+                    xAxis: { data: sentimentData.map(item => item[0]) },
+                    yAxis: { min: function(value) { return Math.floor(value.min * 0.9); }, max: function(value) { return Math.ceil(value.max * 1.1); } },
+                    series: [{ type: 'line', data: sentimentData.map(item => item[1]) }]
+                });
+
+                // 字数统计折线图
+                const chart3 = echarts.init(document.getElementById('chart3'));
+                const wordCountData = Object.entries(data.word_count);
+                chart3.setOption({
+                    tooltip: { trigger: 'axis', formatter: function (params) { return params[0].name + '<br/>' + params[0].seriesName + ': ' + params[0].value + '字' } }, 
+                    title: { text: '话痨本质' }, 
+                    xAxis: { data: wordCountData.map(item => item[0]) },
+                    yAxis: { min: function(value) { return Math.floor(value.min * 0.9); }, max: function(value) { return Math.ceil(value.max * 1.1); } },
+                    series: [{ type: 'line', data: wordCountData.map(item => item[1]) }]
+                });
+
+                // 情感比例饼图
+                const chart4 = echarts.init(document.getElementById('chart4'));
+                const sentimentRatioData = Object.entries(data.sentiment_ratio).map(([name, value]) => ({ name, value }));
+                chart4.setOption({
+                    tooltip: { trigger: 'item' }, 
+                    title: { text: '嘻嘻  VS 不嘻嘻' }, 
+                    series: [{ type: 'pie', data: sentimentRatioData }]
+                });
+            });
+    </script>
+</body>
+</html>
